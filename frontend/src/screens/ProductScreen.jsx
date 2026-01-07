@@ -1,19 +1,10 @@
 import { Link, useParams } from "react-router-dom";
 import { Button, Card, Col, ListGroup, Row } from "react-bootstrap";
+import { useGetProductDetailQuery } from "../slices/productDetailApiSlice";
 import Rating from "../components/Rating";
-import { useEffect, useState } from "react";
-import axios from "axios";
 const ProductScreen = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState("");
-
-  useEffect(() => {
-    const fetchProduct = async () => {
-      const { data } = await axios.get(`/api/products/${id}`);
-      setProduct(data);
-    };
-    fetchProduct();
-  }, [id]);
+  const { data: productData, isLoading, error } = useGetProductDetailQuery(id);
 
   return (
     <>
@@ -22,25 +13,25 @@ const ProductScreen = () => {
       </Link>
       <Card className="my-3 p-3 rounded border-0 shadow-sm">
         <Row>
-          {product && (
+          {isLoading ? (<h2>Loading...</h2>) : error ? (<h2>Error: {error?.data?.message || error?.error}</h2>) : (
             <>
               <Col md={6}>
-                <Card.Img src={product.image} alt={product.name} />
+                <Card.Img src={productData.image} alt={productData.name} />
               </Col>
               <Col md={3}>
                 <ListGroup variant="flush">
                   <ListGroup.Item>
-                    <h3>{product.name}</h3>
+                    <h3>{productData.name}</h3>
                   </ListGroup.Item>
                   <ListGroup.Item>
                     <Rating
-                      value={product.rating}
-                      text={`${product.numReviews} reviews`}
+                      value={productData.rating}
+                      text={`${productData.numReviews} reviews`}
                     />
                   </ListGroup.Item>
-                  <ListGroup.Item>Price: ${product.price}</ListGroup.Item>
+                  <ListGroup.Item>Price: ${productData.price}</ListGroup.Item>
                   <ListGroup.Item>
-                    Description: {product.description}
+                    Description: {productData.description}
                   </ListGroup.Item>
                 </ListGroup>
               </Col>
@@ -51,7 +42,7 @@ const ProductScreen = () => {
                       <Row>
                         <Col>Price:</Col>
                         <Col>
-                          <strong>${product.price}</strong>
+                          <strong>${productData.price}</strong>
                         </Col>
                       </Row>
                     </ListGroup.Item>
@@ -59,7 +50,7 @@ const ProductScreen = () => {
                       <Row>
                         <Col>Status:</Col>
                         <Col>
-                          {product.countInStock > 0
+                          {productData.countInStock > 0
                             ? "In Stock"
                             : "Out of Stock"}
                             
@@ -70,7 +61,7 @@ const ProductScreen = () => {
                       <Button
                         className="btn-block w-100"
                         type="button"
-                        disabled={product.countInStock === 0}
+                        disabled={productData.countInStock === 0}
                       >
                         Add To Cart
                       </Button>
@@ -78,11 +69,11 @@ const ProductScreen = () => {
                   </ListGroup>
                 </Card>
               </Col>
-            </>
-          )}  
-        </Row>
-      </Card>
-    </>
-  );
-};
-export default ProductScreen;
+              </>
+          )} 
+          </Row>
+        </Card>
+      </>
+    )
+  }
+  export default ProductScreen
