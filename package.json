@@ -1,0 +1,45 @@
+{
+  "name": "electro-shop",
+  "version": "1.0.0",
+  "description": "MERN Stack application",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "nodemon backend/server.js",
+    "client": "npm start --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "data:import": "node backend/seeder.js",
+    "data:destroy": "node backend/seeder.js -d"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guy32807/electro-shop.git"
+  },
+  "keywords": [
+    "shopping",
+    "cart",
+    "e-commerce",
+    "nodejs",
+    "reactjs",
+    "node",
+    "react"
+  ],
+  "author": "Auguste Dubuisson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/guy32807/electro-shop/issues"
+  },
+  "homepage": "https://github.com/guy32807/electro-shop#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "colors": "^1.4.0",
+    "express": "^5.2.1",
+    "mongoose": "^9.1.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "dotenv": "^17.2.3",
+    "nodemon": "^3.1.11"
+  }
+}
