@@ -1,14 +1,46 @@
-import { apiSlice } from './apiSlice'
-import { PRODUCTS_URL } from '../constants'
+import { apiSlice } from "./apiSlice";
+import { PRODUCTS_URL } from "../constants";
 
 export const productsApiSlice = apiSlice.injectEndpoints({
-    endpoints: (builder) => ({
-        getProducts: builder.query({    
-            query: () => ({ url: PRODUCTS_URL, method: 'GET' }),
-            providesTags: ['Product'],
-        }),
-        keepUnusedDataFor: 5,
+  endpoints: (builder) => ({
+    getProducts: builder.query({
+      query: () => ({
+        url: PRODUCTS_URL,
+        method: "GET",
+        providesTags: ["Product"],
+      }),
+      keepUnusedDataFor: 5,
+      providesTags: ['Products']
     }),
+    getProductDetail: builder.query({
+      query: (id) => ({
+        url: `${PRODUCTS_URL}/${id}`,
+        method: "GET",
+        providesTags: ["Product"],
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    createProduct: builder.mutation({
+      query: () => ({
+        url: PRODUCTS_URL,
+        method: "POST",
+      }),
+      invalidatesTags: ["Product"],
+    }),
+    updateProduct: builder.mutation({
+      query: (data) => ({
+        url: `${PRODUCTS_URL}/${data._id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Products"],
+    }),
+  }),
 });
 
-export const { useGetProductsQuery } = productsApiSlice;
+export const {
+  useGetProductsQuery,
+  useGetProductDetailQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+} = productsApiSlice;

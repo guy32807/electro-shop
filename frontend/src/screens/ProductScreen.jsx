@@ -2,7 +2,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { Button, Card, Col, ListGroup, Row, Form } from "react-bootstrap";
 import { addToCart } from '../slices/cartSlice.js'
 
-import { useGetProductDetailQuery } from "../slices/productDetailApiSlice";
+import { useGetProductDetailQuery } from "../slices/productsApiSlice.js";
 import { useDispatch } from "react-redux";
 import Rating from "../components/Rating";
 import Loader from '../components/Loader.jsx'

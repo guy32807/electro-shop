@@ -25,6 +25,8 @@ import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import ProfileScreen from "./screens/ProfileScreen.jsx";
 import AdminRoute from "./components/AdminRoute.jsx";
 import OrderListScreen from "./screens/admin/OrderListScreen.jsx";
+import ProductListScreen from "./screens/admin/ProductListScreen.jsx";
+import ProductEditScreen from "./screens/ProductEditScreen.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -44,6 +46,8 @@ const router = createBrowserRouter(
       </Route>
       <Route path="" element={<AdminRoute />}>
         <Route path="/admin/order-list" element={<OrderListScreen />} />
+        <Route path="/admin/product-list" element={<ProductListScreen />} />
+        <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
       </Route>
     </Route>
   )
