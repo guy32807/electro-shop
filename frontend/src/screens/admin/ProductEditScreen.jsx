@@ -9,10 +9,10 @@ import {
   useGetProductDetailQuery,
   useUpdateProductMutation,
   useUploadProductImageMutation
-} from "../slices/productsApiSlice";
-import FormContainer from "../components/FormContainer";
-import Message from "../components/Message";
-import Loader from "../components/Loader";
+} from "../../slices/productsApiSlice";
+import FormContainer from "../../components/FormContainer";
+import Message from "../../components/Message";
+import Loader from "../../components/Loader";
 import { Button, Form, Toast } from "react-bootstrap";
 import {toast } from 'react-toastify';
 
