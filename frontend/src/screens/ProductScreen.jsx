@@ -1,23 +1,57 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Button, Card, Col, ListGroup, Row, Form } from "react-bootstrap";
-import { addToCart } from '../slices/cartSlice.js'
+import { addToCart } from "../slices/cartSlice.js";
 
-import { useGetProductDetailQuery } from "../slices/productsApiSlice.js";
-import { useDispatch } from "react-redux";
+import {
+  useGetProductDetailQuery,
+  useCreateReviewMutation,
+} from "../slices/productsApiSlice.js";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import Rating from "../components/Rating";
-import Loader from '../components/Loader.jsx'
-import Message from '../components/Message.jsx'
+import Loader from "../components/Loader.jsx";
+import Message from "../components/Message.jsx";
 import { useState } from "react";
 const ProductScreen = () => {
-  const { id } = useParams();
+  const { id: productId } = useParams();
+
   const [qty, setQty] = useState(1);
-  const { data: productData, isLoading, error } = useGetProductDetailQuery(id);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+
+  const { userInfo } = useSelector((state) => state.auth);
+
+  const {
+    data: productData,
+    isLoading,
+    error,
+    refetch,
+  } = useGetProductDetailQuery(productId);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [createReview, { isLoading: loadingProductReview }] =
+    useCreateReviewMutation();
+
   const addToCartHandler = () => {
-    dispatch(addToCart({...productData, qty}));
-    navigate('/cart');
+    dispatch(addToCart({ ...productData, qty }));
+    navigate("/cart");
+  };
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      await createReview({
+        productId, rating, comment
+      }).unwrap();
+      refetch();
+      toast.success('Review submitted')
+      setRating(0);
+      setComment('');
+    } catch (error) {
+      toast.error(error?.data?.message || error.error)
+    }
   }
   return (
     <>
@@ -25,9 +59,15 @@ const ProductScreen = () => {
         Go Back
       </Link>
       <Card className="my-3 p-3 rounded border-0 shadow-sm">
-        <Row>
-          {isLoading ? (<Loader />) : error ? (<Message variant="danger">{error?.data?.message || error?.error}</Message>) : (
-            <>
+        {isLoading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant="danger">
+            {error?.data?.message || error?.error}
+          </Message>
+        ) : (
+          <>
+            <Row>
               <Col md={6}>
                 <Card.Img src={productData.image} alt={productData.name} />
               </Col>
@@ -66,7 +106,6 @@ const ProductScreen = () => {
                           {productData.countInStock > 0
                             ? "In Stock"
                             : "Out of Stock"}
-
                         </Col>
                       </Row>
                     </ListGroup.Item>
@@ -75,10 +114,18 @@ const ProductScreen = () => {
                         <Row>
                           <Col>Qty: </Col>
                           <Col>
-                            <Form.Control as='select' value={qty} onChange={(e) => setQty(Number(e.target.value))}>
-                              {[...Array(productData.countInStock).keys()].map((x) => (
-                                <option key={x + 1} value={x + 1}>{x + 1}</option>
-                              ))}
+                            <Form.Control
+                              as="select"
+                              value={qty}
+                              onChange={(e) => setQty(Number(e.target.value))}
+                            >
+                              {[...Array(productData.countInStock).keys()].map(
+                                (x) => (
+                                  <option key={x + 1} value={x + 1}>
+                                    {x + 1}
+                                  </option>
+                                )
+                              )}
                             </Form.Control>
                           </Col>
                         </Row>
@@ -97,11 +144,64 @@ const ProductScreen = () => {
                   </ListGroup>
                 </Card>
               </Col>
-            </>
-          )}
-        </Row>
+            </Row>
+            <Row className="review">
+              <Col md={6}>
+                <h2>Reviews</h2>
+                {productData.reviews.length === 0 && (
+                  <Message>No Reviews</Message>
+                )}
+                <ListGroup variant="flush">
+                  {productData.reviews.map((review) => (
+                    <ListGroup.Item key={review._id}>
+                      <strong>{review.name}</strong>
+                      <Rating value={review.rating} />
+                      <p>{review.createdAt.substring(0, 10)}</p>
+                      <>{review.comment}</>
+                    </ListGroup.Item>
+                  ))}
+                  <ListGroup.Item>
+                    <h2>Write a customer Review</h2>
+                    {loadingProductReview && <Loader />}
+                    {userInfo ? (
+                      <Form onSubmit={submitHandler}>
+                        <Form.Group controlId="rating" className="my-2">
+                          <Form.Label>Rating</Form.Label>
+                          <Form.Control
+                            as="select"
+                            value={rating}
+                            onChange={(e) => setRating(Number(e.target.value))}
+                          >
+                            <option value="">Select...</option>
+                            <option value="1">1 - Poor</option>
+                            <option value="1">2 - Fair</option>
+                            <option value="1">3 - Good</option>
+                            <option value="1">4 - Very Good</option>
+                            <option value="1">5 - Excellent</option>
+                          </Form.Control>
+                        </Form.Group>
+                        <Form.Group controlId="comment" className="my-2">
+                          <Form.Label>Comment</Form.Label>
+                          <Form.Control
+                            as="textarea"
+                            row={3}
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                          ></Form.Control>
+                        </Form.Group>
+                        <Button disabled={loadingProductReview} type="submit" variant="primary">Submit</Button>
+                      </Form>
+                    ) : (
+                      <Message>Please <Link to='/login'>sign in</Link> to write a review{' '}</Message>
+                    )}
+                  </ListGroup.Item>
+                </ListGroup>
+              </Col>
+            </Row>
+          </>
+        )}
       </Card>
     </>
-  )
-}
-export default ProductScreen
+  );
+};
+export default ProductScreen;
